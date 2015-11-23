@@ -11,6 +11,9 @@ var clouds = [];
 var hearts = [];
 var titles = [];
 var triangles = [];
+var diamonds = [];
+
+
 
 function Circle (x,y,color){
 	this.x = x;
@@ -67,6 +70,14 @@ function makeTitle(){
 	return(title);
 }
 
+function Diamond (x,y,color){
+	this.x = x;
+	this.y = y;
+	this.color = color;
+	this.dx = Math.random()*4-2;
+	this.dy = this.dx;
+}
+
 
 
 function init(){
@@ -78,8 +89,6 @@ function init(){
 	resizeCanvas();
 	canvas.onclick = function(event){
 		handleClick(event.clientX, event.clientY);
-		//var title = makeTitle();
-		//drawText(title);
 	};
 	timer = setInterval(resizeCanvas, 30);
 
@@ -127,11 +136,19 @@ function handleClick(x,y){
 		}
 	}
 
+	for (var i = 0; i < diamonds.length; i++){
+		d = Math.sqrt((diamonds[i].x - x) * (diamonds[i].x - x) + (diamonds[i].y - y) * (diamonds[i].y - y));
+		if(d <= 30){
+			diamonds.splice(i, 1);
+			found = true;
+		}
+	}
+
 	fillBackgroundColor();
 	if (!found){
 		var colors = ['LemonChiffon', 'LightPink', 'PaleTurquoise', 'Plum', 'LightGreen'];
 		var color = colors[Math.floor(Math.random() * colors.length)];
-		var shapes = ['square', 'circle', 'cloud', 'heart', 'triangle'];
+		var shapes = ['square', 'circle', 'cloud', 'heart', 'triangle', 'diamond'];
 	//var colors = ['white', 'yellow', 'pink', 'green'];
 	for (var i = 0; i < 1; i++){
 		//var color = colors[Math.floor(Math.random() * colors.length)];
@@ -140,7 +157,7 @@ function handleClick(x,y){
 		var color = colors[Math.floor(Math.random() * colors.length)];
 		titles.splice(i, 1);
 		titles.push(makeTitle());
-		//makeTitle();
+		
 		if (shape == 'circle'){
 			//drawCircle(canvas, context, color);
 			circles.push(new Circle(x, y, color));
@@ -155,10 +172,11 @@ function handleClick(x,y){
 		else if (shape == 'triangle'){
 			triangles.push(new Triangle(x, y, color));
 		}
+		else if (shape == 'diamond'){
+			diamonds.push(new Diamond(x, y, color));
+		}
 		else hearts.push(new Heart(x,y, color));
-		//circles.push(new Circle(x, y, color));
-		//squares.push(new Square(x, y, color));
-		//artHandler();
+		
 	}
 }
 
@@ -179,6 +197,9 @@ function handleClick(x,y){
 	for (var i = 0; i < triangles.length; i++){
 		drawTriangle(triangles[i]);
 	}
+	for (var i = 0; i < diamonds.length; i++){
+		drawDiamond(diamonds[i]);
+	}
 	for (var i = 0; i < titles.length; i++){
 		drawText(titles[0]);
 	}	
@@ -186,11 +207,24 @@ function handleClick(x,y){
 }
 
 function drawText (title){
-	context.fillStyle = 'black';
+	context.fillStyle = 'DimGray';
 	context.font = 'bold 1em sans-serif';
-	context.textAlign = 'right';
-	context.fillText (title, canvas.width-250, canvas.height-40);
+	context.textAlign = 'left';
+	for (var i = 0; i < clouds.length; i++){
+	var horiz = 500 + i + Math.random() * 0;
+	var vert = 270 + i + Math.random() * 6;
+	}
+	context.fillText (title, horiz, vert); //canvas.width-250, canvas.height-40);
+
+
+	/*if (title.x + title.dx > canvas.width || title.x + title.dx < 0)
+      title.dx = -title.dx;
+  	if (title.y + title.dy > canvas.height || title.y + title.dy < 0)
+ 	  title.dy = -title.dy;
+	  title.x += title.dx;
+	  title.y += title.dy;*/
 }
+
 
 function drawCircle(circle){
 	context.beginPath();
@@ -208,8 +242,7 @@ function drawCircle(circle){
 function drawSquare (square){
 	var t = square.x+5;
 	var u = square.y+5;
-	//var x = Math.floor(Math.random() * canvas.width);
-	//var y = Math.floor(Math.random() * canvas.height);
+	
 	context.beginPath();
 	context.fillRect(square.x, square.y, t, u)
 	context.fillStyle = square.color;
@@ -223,7 +256,7 @@ function drawSquare (square){
 	  square.y += square.dy;
 }
 
-// begin custom shape
+
 function drawCloud (cloud){
 context.translate(cloud.x, cloud.y);
       context.beginPath();
@@ -235,7 +268,7 @@ context.translate(cloud.x, cloud.y);
       context.bezierCurveTo(320, 10, 250, 40, 170, 50);
       context.bezierCurveTo(200, 0, 150, 20, 170, 80);
 
-      // complete custom shape
+      
       context.closePath();
       context.lineWidth = 5;
       context.fillStyle = cloud.color;
@@ -257,7 +290,7 @@ function drawTriangle (triangle){
       context.lineTo(200, 150);
       context.lineTo(75, 100);
 
-      // complete custom shape
+     
       context.closePath();
       context.lineWidth = 5;
       context.fillStyle = triangle.color;
@@ -288,7 +321,30 @@ function drawHeart (heart){
  	  heart.dy = -heart.dy;
 	  heart.x += heart.dx;
 	  heart.y += heart.dy;	*/
-}   
+} 
+
+function drawDiamond (diamond){
+	  context.translate(diamond.x, diamond.y);
+      context.beginPath();
+      context.moveTo(0, -40);
+      context.lineTo(30, 0);
+      context.lineTo(0, 40);
+	  context.lineTo(-30, 0);
+
+      // complete custom shape
+      context.closePath();
+      context.lineWidth = 5;
+      context.fillStyle = diamond.color;
+      context.fill();
+	  context.translate(-diamond.x, -diamond.y);
+
+    if (diamond.x + diamond.dx > canvas.width || diamond.x + diamond.dx < 0)
+      diamond.dx = -diamond.dx;
+  	if (diamond.y + diamond.dy > canvas.height || diamond.y + diamond.dy < 0)
+ 	  diamond.dy = -diamond.dy;
+	  diamond.x += diamond.dx;
+	  diamond.y += diamond.dy;
+  }  
 
 
 function degreesToRadians(degrees){
@@ -319,8 +375,11 @@ function resizeCanvas (){
 	for (var i = 0; i < triangles.length; i++){
 		drawTriangle(triangles[i]);
 	}
+	for (var i = 0; i < diamonds.length; i++){
+		drawDiamond(diamonds[i]);
+	}
 	for (var i = 0; i < titles.length; i++){
-		drawText(titles[i]);
+		drawText(titles[0]);
 	}	
 }
 
